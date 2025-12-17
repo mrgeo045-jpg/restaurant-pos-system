@@ -1,9 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { loginUser } from '@/lib/auth';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect') || '/admin';
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,16 +21,26 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // TODO: integrate with Supabase auth
       if (!email || !password) {
         setError('البريد الإلكتروني وكلمة المرور مطلوبان');
         return;
       }
-      console.log('Login attempt:', { email, password });
-      // Redirect to dashboard after successful login
-      // window.location.href = '/admin';
+
+      // Call loginUser from lib/auth.ts
+      const result = loginUser(email, password);
+
+      if (result.success) {
+        // Set auth token in cookie (Next.js will handle this)
+        document.cookie = `authToken=${result.token}; path=/; max-age=86400`;
+        console.log('Login successful:', { email });
+        // Redirect to the intended page or admin dashboard
+        router.push(redirect);
+      } else {
+        setError('بيانات الدخول غير صحيحة');
+      }
     } catch (err) {
       setError('خطأ في عملية الدخول');
+      console.error('Login error:', err);
     } finally {
       setLoading(false);
     }
@@ -80,9 +96,9 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center mt-4 text-gray-600">
-            لا تملك حساباء 
+            لا تملك حساب؟{' '}
             <Link href="/auth/signup" className="text-blue-600 hover:underline">
-              ارجستر الآن
+              سجل الآن
             </Link>
           </p>
         </div>
