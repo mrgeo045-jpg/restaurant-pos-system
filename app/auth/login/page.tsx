@@ -26,17 +26,15 @@ export default function LoginPage() {
         return;
       }
 
-      // Call loginUser from lib/auth.ts
-      const result = loginUser(email, password);
+      // Call loginUser from lib/auth.ts (it's async)
+      const result = await loginUser(email, password);
 
       if (result.success) {
-        // Set auth token in cookie (Next.js will handle this)
-        document.cookie = `authToken=${result.token}; path=/; max-age=86400`;
-        console.log('Login successful:', { email });
+        console.log('Login successful:', { email, user: result.user });
         // Redirect to the intended page or admin dashboard
         router.push(redirect);
       } else {
-        setError('بيانات الدخول غير صحيحة');
+        setError(result.error || 'بيانات الدخول غير صحيحة');
       }
     } catch (err) {
       setError('خطأ في عملية الدخول');
