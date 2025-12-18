@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Table, ApiResponse } from '../../lib/types/restaurant.ts';
-  { id: '1', numberAr: 'الأولى', numberEn: 'Table 1', capacity: 4, status: 'empty', createdAt: new Date(), updatedAt: new Date() },
+import { Table, ApiResponse } from '../../lib/types/restaurant';
   { id: '2', numberAr: 'الثانية', numberEn: 'Table 2', capacity: 6, status: 'empty', createdAt: new Date(), updatedAt: new Date() },
   { id: '3', numberAr: 'الثالثة', numberEn: 'Table 3', capacity: 4, status: 'empty', createdAt: new Date(), updatedAt: new Date() },
   { id: '4', numberAr: 'الرابعة', numberEn: 'Table 4', capacity: 8, status: 'empty', createdAt: new Date(), updatedAt: new Date() },
