@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Order, BillSplitPerson, OrderItem, ApiResponse } from '../../lib/types/restaurant';
-export async function POST(request: NextRequest) {
+import { Order, BillSplitPerson, OrderItem, ApiResponse } from '@/types/restaurant';export async function POST(request: NextRequest) {  
   try {
     const body = await request.json();
     const { tableId, items, taxRate = 0.15 } = body;
