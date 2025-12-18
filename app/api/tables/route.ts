@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Table, ApiResponse } from '@/lib/types/restaurant';
-
+import { Table, ApiResponse } from '../../lib/types/restaurant';
 let tables: Table[] = [
   { id: '1', numberAr: 'الأولى', numberEn: 'Table 1', capacity: 4, status: 'empty', createdAt: new Date(), updatedAt: new Date() },
   { id: '2', numberAr: 'الثانية', numberEn: 'Table 2', capacity: 6, status: 'empty', createdAt: new Date(), updatedAt: new Date() },
