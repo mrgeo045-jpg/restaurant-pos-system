@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { SupplierForm } from '../../form';
-
+import { SupplierForm } from '../../components/suppliers/form';
 interface Supplier {
   id: string;
   name: string;
