@@ -152,6 +152,7 @@ export async function PUT(request: NextRequest) {
     const { data, error } = await supabase
       .from('suppliers')
       .update({ ...updateData, updatedAt: new Date().toISOString() })
+       .select('*')
       .eq('id', id);
 
     if (error) {
