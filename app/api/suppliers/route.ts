@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       pagination: {
         page: pageNum,
         limit: limitNum,
-total: 0,        pages: Math.ceil((count || 0) / limitNum),
+total: 0,        pages: Math.ceil(0 / limitNum),
       },
     });
   } catch (error) {
