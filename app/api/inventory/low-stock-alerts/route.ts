@@ -85,7 +85,6 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const supabase = createClient();
     const url = new URL(request.url);
     const alertId = url.pathname.split('/').pop();
 
