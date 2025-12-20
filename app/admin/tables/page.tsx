@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Table } from '@/types/restaurant';
+import { Table } from '@/lib/types/restaurant';
 export default function TablesManagement() {
   const [tables, setTables] = useState<Table[]>([]);
   const [loading, setLoading] = useState(true);
