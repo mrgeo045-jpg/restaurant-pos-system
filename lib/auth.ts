@@ -1,7 +1,6 @@
-// Simple client-side authentication utilities
-// Note: This is a mock implementation for development purposes
-// In production, use a proper auth service like Supabase, Firebase, or Auth0
+'use client';
 
+// Client-side authentication utilities that integrate with API routes
 export interface AuthUser {
   id: string;
   email: string;
@@ -16,6 +15,12 @@ export interface LoginResult {
   error?: string;
 }
 
+export interface SignupResult {
+  success: boolean;
+  user?: AuthUser;
+  error?: string;
+}
+
 export function validateEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
@@ -25,45 +30,166 @@ export function validatePassword(password: string): boolean {
   return password.length >= 6;
 }
 
-export function loginUser(email: string, password: string): LoginResult {
-  if (!validateEmail(email)) {
-    return { success: false, error: 'Invalid email format' };
-  }
-  if (!validatePassword(password)) {
-    return { success: false, error: 'Password must be at least 6 characters' };
-  }
+/**
+ * Login user via API endpoint
+ * Calls POST /api/auth/login with email and password
+ */
+export async function loginUser(
+  email: string,
+  password: string
+): Promise<LoginResult> {
+  try {
+    if (!validateEmail(email)) {
+      return { success: false, error: 'Invalid email format' };
+    }
+    if (!validatePassword(password)) {
+      return { success: false, error: 'Password must be at least 6 characters' };
+    }
 
-  // Mock users for demonstration
-  const mockUsers: Record<string, { password: string; user: AuthUser }> = {
-    'admin@restaurant.com': {
-      password: 'admin123',
-      user: { id: '1', email: 'admin@restaurant.com', name: 'مدير', role: 'admin' },
-    },
-    'manager@restaurant.com': {
-      password: 'manager123',
-      user: { id: '2', email: 'manager@restaurant.com', name: 'مدير العمليات', role: 'manager' },
-    },
-    'cashier@restaurant.com': {
-      password: 'cashier123',
-      user: { id: '3', email: 'cashier@restaurant.com', name: 'كاشير', role: 'cashier' },
-    },
-  };
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-  const userRecord = mockUsers[email];
-  if (!userRecord || userRecord.password !== password) {
-    return { success: false, error: 'Invalid email or password' };
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: data.error || 'Login failed',
+      };
+    }
+
+    // Store user data in localStorage
+    if (data.user) {
+      localStorage.setItem('currentUser', JSON.stringify(data.user));
+      localStorage.setItem('authToken', data.token || '');
+    }
+
+    return {
+      success: true,
+      token: data.token,
+      user: data.user,
+    };
+  } catch (error) {
+    console.error('Login error:', error);
+    return {
+      success: false,
+      error: 'Network error or server unavailable',
+    };
   }
-
-  // Create a simple token (in production, this should be signed JWT from server)
-  const token = Buffer.from(JSON.stringify(userRecord.user)).toString('base64');
-  return { success: true, token, user: userRecord.user };
 }
 
-export function getCurrentUserFromToken(token: string): AuthUser | null {
+/**
+ * Sign up new user via API endpoint
+ * Calls POST /api/auth/signup with email, password, and role
+ */
+export async function signupUser(
+  email: string,
+  password: string,
+  name: string,
+  role: 'admin' | 'manager' | 'cashier' | 'kitchen' = 'cashier'
+): Promise<SignupResult> {
   try {
-    const user = JSON.parse(Buffer.from(token, 'base64').toString('utf-8'));
-    return user as AuthUser;
+    if (!validateEmail(email)) {
+      return { success: false, error: 'Invalid email format' };
+    }
+    if (!validatePassword(password)) {
+      return { success: false, error: 'Password must be at least 6 characters' };
+    }
+    if (!name || name.trim().length === 0) {
+      return { success: false, error: 'Name is required' };
+    }
+
+    const response = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password, name, role }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: data.error || 'Signup failed',
+      };
+    }
+
+    // Auto-login after signup
+    if (data.user) {
+      localStorage.setItem('currentUser', JSON.stringify(data.user));
+      localStorage.setItem('authToken', data.token || '');
+    }
+
+    return {
+      success: true,
+      user: data.user,
+    };
+  } catch (error) {
+    console.error('Signup error:', error);
+    return {
+      success: false,
+      error: 'Network error or server unavailable',
+    };
+  }
+}
+
+/**
+ * Get current logged-in user from localStorage
+ */
+export function getCurrentUser(): AuthUser | null {
+  if (typeof window === 'undefined') return null;
+  const userStr = localStorage.getItem('currentUser');
+  if (!userStr) return null;
+  try {
+    return JSON.parse(userStr);
   } catch {
     return null;
   }
+}
+
+/**
+ * Get authentication token from localStorage
+ */
+export function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('authToken');
+}
+
+/**
+ * Logout user - clear stored auth data
+ */
+export function logoutUser(): void {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem('currentUser');
+  localStorage.removeItem('authToken');
+}
+
+/**
+ * Check if user is authenticated
+ */
+export function isAuthenticated(): boolean {
+  return getCurrentUser() !== null && getAuthToken() !== null;
+}
+
+/**
+ * Check if user has required role
+ */
+export function hasRole(role: string): boolean {
+  const user = getCurrentUser();
+  return user?.role === role;
+}
+
+/**
+ * Check if user has any of the required roles
+ */
+export function hasAnyRole(roles: string[]): boolean {
+  const user = getCurrentUser();
+  return user ? roles.includes(user.role) : false;
 }
