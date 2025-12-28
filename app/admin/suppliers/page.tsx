@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Button from '@/components/Button';
-import Modal from '@/components/Modal';
+import { Button, Modal } from '@/components';
 import { Plus, Edit2, Trash2, Search } from 'lucide-react';
 
 interface Supplier {
