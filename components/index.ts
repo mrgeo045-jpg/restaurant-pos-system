@@ -4,4 +4,4 @@ export * from './ui/alert';
 
 // Re-export composed components - Direct imports to avoid ambiguous paths
 export { Button } from './ui/button';
-export { Modal } from './ui/Modal';
+export { Modal } from './Modal';
