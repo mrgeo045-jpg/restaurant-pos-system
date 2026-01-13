@@ -149,3 +149,7 @@ export function getAllRoles(): UserRole[] {
 export function canAccessRoute(userRole: UserRole, requiredPermission: Permission): boolean {
   return hasPermission(userRole, requiredPermission);
 }
+
+
+// Check permission alias
+export const checkPermission = hasPermission;
